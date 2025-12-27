@@ -115,18 +115,18 @@ L'analyse a révélé que les corrélations significatives se concentrent sur le
 Cette troisième phase du projet vise à traduire les enseignements issus de l’analyse exploratoire statique et dynamique en modèles prédictifs opérationnels, capables d’anticiper l’évolution de la température horaire à différentes échelles temporelles. L’objectif est de comprendre dans quelle mesure les hypothèses structurelles de chaque famille de modèles influencent leur capacité à reproduire la complexité du climat.
 La démarche adoptée repose sur une montée progressive en complexité, depuis des modèles de référence simples jusqu’à des architectures hybrides intégrant explicitement des connaissances physiques et temporelles.
 
-### 1. Mise en place d’un cadre de référence : baseline et modèle SARIMA
+### A - Mise en place d’un cadre de référence : baseline et modèle SARIMA
 La première étape de modélisation consiste à établir un *benchmark* minimal à l’aide d’un modèle naïf de persistance saisonnière ($t \to t-24$). Les performances obtenues confirment l’existence d’une forte inertie thermique à l’échelle horaire, rendant cette baseline particulièrement compétitive à très court terme.
 Dans un second temps, un modèle **SARIMA** est implémenté afin de capturer formellement la structure auto-corrélée et saisonnière mise en évidence dans le [Notebook 03](./03_time_series_analysis.ipynb). La stationnarisation préalable par double différenciation (simple et saisonnière) permet de satisfaire les hypothèses statistiques du modèle.
 Les résultats montrent que SARIMA améliore significativement la baseline lorsqu’il est utilisé en mode *rolling*, grâce à sa capacité à corriger rapidement ses erreurs via le terme de moyenne mobile. En revanche, les prévisions statiques à horizon long révèlent une dérive progressive vers une moyenne saisonnière, traduisant les limites inhérentes d’un modèle linéaire à coefficients constants face à un signal non linéaire.
 
-### 2. Deep Learning : apports et limites du LSTM
+### B - Deep Learning : apports et limites du LSTM
 Afin de dépasser les contraintes structurelles du cadre SARIMA, une première architecture **LSTM univariée** (température comme seule feature) est déployée. Cette approche permet d’exploiter la mémoire interne des réseaux récurrents pour modéliser des dépendances temporelles plus complexes, sans imposer d’hypothèses explicites de linéarité ou de stationnarité. Les résultats montrent une amélioration des performances en mode *rolling* à très court terme, le LSTM surpassant SARIMA grâce à sa capacité à absorber les chocs thermiques locaux. Toutefois, lorsqu’il est utilisé en prévision récursive sur des horizons étendus (plusieurs jours), le modèle tend à produire des trajectoires lissées, convergeant vers une oscillation moyenne, ce qui met en évidence que la température seule ne constitue pas une information suffisante pour anticiper les changements de de régime météorologique à moyen terme.
 
 L’étape suivante consiste à enrichir le modèle LSTM en intégrant un sous-ensemble de variables sélectionnées lors de l’EDA dans le [Notebook 02](./02_eda.ipynb). Cette approche multivariée permet de contextualiser la dynamique thermique et d’améliorer la stabilité des prévisions jusqu’à l’horizon journalier.
 Une analyse systématique de l’erreur en fonction de l’horizon ($h = 1$ à $24$ heures) met en évidence une dégradation progressive mais contrôlée des performances, sans rupture brutale. Cette évolution reflète un compromis biais–variance : plus l’horizon s’allonge, plus l’incertitude intrinsèque du système augmente. Néanmoins, au-delà de 48 heures, le modèle tend à nouveau vers un comportement de lissage, révélant une perte d’information contextuelle suffisante pour prédire des événements spécifiques.
 
-### 3. Extension au moyen terme : enrichissement des données et architecture hybride CNN-LSTM
+### C - Extension au moyen terme : enrichissement des données et architecture hybride CNN-LSTM
 Pour étendre la performance à l’échelle de la semaine, une révision plus profonde de la stratégie est opérée. La comparaison des résultats montre que la limite principale ne réside pas dans l’architecture du réseau, mais dans la qualité et la structuration de l’information fournie en entrée.
 
 Un enrichissement systématique des données est alors mis en œuvre, combinant :
